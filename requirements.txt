@@ -1,0 +1,21 @@
+# Inference-only dependencies for CelebV-HQ StyleGAN3 face generation.
+#
+# PyTorch is installed separately from the CUDA-matched index (see README),
+# NOT from PyPI, so it is intentionally not pinned here:
+#   pip install --index-url https://download.pytorch.org/whl/cu128 \
+#       torch==2.9.1 torchvision
+#
+# Verified environment: Python 3.10.20, torch 2.9.1+cu128, CUDA 12.8,
+#                       single NVIDIA RTX 4090 (24 GB).
+#
+# StyleGAN3 compiles custom CUDA ops at first run, so a CUDA toolkit + a C++
+# compiler (and `ninja`) must be available.
+
+numpy==2.2.6
+scipy==1.15.2
+pillow==12.2.0
+click==8.1.8
+requests
+tqdm
+psutil
+ninja

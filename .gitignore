@@ -1,0 +1,17 @@
+# Cloned NVIDIA StyleGAN3 source (fetched via README step; pinned commit)
+external/
+
+# Model weights — NOT distributed in this repo (submitted separately for
+# top-10 reproducibility checks, per challenge rules)
+*.pkl
+checkpoints/
+
+# Generated outputs
+out/
+samples/
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+.venv/
