@@ -28,9 +28,16 @@ Requires a CUDA GPU + toolkit and a C++ compiler (StyleGAN3 builds custom CUDA
 ops on first run). Verified on Python 3.10, CUDA 12.8, RTX 4090 (24 GB).
 
 ```bash
-# (a) clone NVIDIA StyleGAN3 at the exact pinned commit
+# (a) clone NVIDIA StyleGAN3 at the exact pinned commit, then apply a small
+#     inline compatibility fix for newer PyTorch (without it, generation fails
+#     with "No module named 'bias_act_plugin'"). The Docker build does this
+#     automatically; for a manual setup run the same sed:
 git clone https://github.com/NVlabs/stylegan3 external/stylegan3
 git -C external/stylegan3 checkout c233a919a6faee6e36a316ddd4eddababad1adf9
+sed -i \
+  -e 's/^\( *\)torch\.utils\.cpp_extension\.load(name=module_name,/\1module = torch.utils.cpp_extension.load(name=module_name,/' \
+  -e '/module = importlib\.import_module(module_name)/d' \
+  external/stylegan3/torch_utils/custom_ops.py
 
 # (b) PyTorch (CUDA-matched wheel; NOT from PyPI)
 pip install --index-url https://download.pytorch.org/whl/cu128 torch==2.9.1 torchvision

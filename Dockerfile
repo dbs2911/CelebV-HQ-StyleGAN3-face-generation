@@ -17,11 +17,19 @@ RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cu12
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Pinned StyleGAN3 source
-RUN git clone https://github.com/NVlabs/stylegan3 external/stylegan3 \
-    && git -C external/stylegan3 checkout c233a919a6faee6e36a316ddd4eddababad1adf9
-
 COPY . .
+
+# Pinned StyleGAN3 source + an inline compatibility fix for newer PyTorch.
+# Upstream custom_ops.get_plugin builds the CUDA op but then re-imports it by
+# bare module name, which fails on recent torch with
+# "No module named 'bias_act_plugin'". The sed below captures the module
+# returned by cpp_extension.load() instead and drops the broken re-import.
+RUN git clone https://github.com/NVlabs/stylegan3 external/stylegan3 \
+    && git -C external/stylegan3 checkout c233a919a6faee6e36a316ddd4eddababad1adf9 \
+    && sed -i \
+         -e 's/^\( *\)torch\.utils\.cpp_extension\.load(name=module_name,/\1module = torch.utils.cpp_extension.load(name=module_name,/' \
+         -e '/module = importlib\.import_module(module_name)/d' \
+         external/stylegan3/torch_utils/custom_ops.py
 
 # Mount checkpoints/ at runtime, then follow README step 3.
 CMD ["bash"]
